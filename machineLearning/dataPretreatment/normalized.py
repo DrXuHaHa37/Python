@@ -1,3 +1,6 @@
+import numpy as np
+import os
+import csv
 # 数据归一化方法：
 # 1.效益型 越大越好-----------	> 大的大
 # 2.成本型 越小越好-----------	> 小的大
@@ -5,7 +8,6 @@
 # 4.偏离型 约远离某个值越好----->
 # 5.区间型 越靠近某个区间越好---	>
 
-import numpy as np
 #传入numpy.array
 #传入每个属性对应的归一化方式 一维向量
 def normalize(arr,method,standard=None):
@@ -34,3 +36,18 @@ def normalize(arr,method,standard=None):
 			else:
 				return "error: wrong normalize method input"
 	return arr
+
+# put datasets which the path ordered together, and ends with '.dataType'
+def putDatasTogether(path,dataType):
+	files = os.listdir(path)
+	featureSet = set()
+	for file in files:
+		if not ( file.endswith('.'+dataType) and file.startswith('drill') ):
+			files.pop(files.index(file))
+	for file in files:
+		with open(path + '/' + file) as f:
+			csvFile = list(csv.reader(f))
+			features = csvFile[0]
+		for feature in features:
+			featureSet.add(feature.split(' ')[0])
+	return sorted(featureSet)

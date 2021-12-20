@@ -3,21 +3,17 @@ import matplotlib.pyplot as plt
 import csv
 
 import sys
-sys.path.append("..")
+sys.path.append("../../")
 from dataPretreatment import normalized as nmlz
 
-dataSetPwd = "../dataSet/testData.csv"
+class pca():
+	def __init__(self):
+		dataSetPwd = "../../dataSet/drillData_CSV"
+		self.dataType = 'csv'
+		self.allFeatures = nmlz.putDatasTogether(dataSetPwd, self.dataType)
+	def getinfo(self):
+		print(self.allFeatures)
+		print(len(self.allFeatures))
 
-matrix = []
-with open(dataSetPwd) as dataFile:
-	file_csv = csv.reader(dataFile)
-	for row in range(1,len(file_csv)):
-		matrix.append(row)
-
-mtx = np.asarray(matrix)
-print(mtx)
-
-
-
-# arr1 = np.asarray(a,float)
-# print(nmlz.normalize(arr1,3,[2,4,3]))
+conclusion = pca()
+conclusion.getinfo()
