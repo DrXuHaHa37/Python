@@ -45,7 +45,7 @@ def putDatasTogether(path,dataType):
 		if not ( file.endswith('.'+dataType) and file.startswith('drill') ):
 			files.pop(files.index(file))
 	for file in files:
-		with open(path + '/' + file) as f:
+		with open(path + '/' + file, encoding="utf-8") as f:
 			csvFile = list(csv.reader(f))
 			features = csvFile[0]
 		for feature in features:
