@@ -103,7 +103,7 @@ def put_data_in_a_table(path, files):
                         attrMap = currentAttrMap[currentFeature]
                         newRow[attrMap[1]] = csvFile[row][column]
                 attributesMatrix.append(newRow)
-    with open(path + '/putTogether.csv', "w") as writeFile:
+    with open(path + '/putTogether.csv', "w", encoding="utf-8-sig") as writeFile:
         writer = csv.writer(writeFile)
         writer.writerows(attributesMatrix)
 

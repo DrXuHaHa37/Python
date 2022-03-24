@@ -15,3 +15,5 @@ class datas():
         self.dataType = 'csv'
         self.allFeatures = nmlz.get_features_from_datasets(dataSetPwd, self.dataType)
 
+
+newdata = datas()
