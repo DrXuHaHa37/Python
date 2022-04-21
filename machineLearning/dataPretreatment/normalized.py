@@ -9,35 +9,100 @@ import csv
 # 3.固定型 越接近某个值越好	---->
 # 4.偏离型 约远离某个值越好----->
 # 5.区间型 越靠近某个区间越好--->
+# 6.偏离区间 约远离某个区间好---->
+NormalizeType = {
+    'benefit': 1,
+    'cost': 2,
+    'fixed': 3,
+    'deviate': 4,
+    'interval': 5,
+    'de-interval': 6,
+}
+
 
 # 传入numpy.array
 # 传入每个属性对应的归一化方式 一维向量
 def normalize(arr, method, standard=None):
-    columnCount = len(arr[0])
-    rowCount = len(arr)
-
-    if (standard is not None) and (len(standard) != columnCount):
-        return "error: wrong standard length"
+    rowCount, columnCount = arr.shape
 
     for column in range(columnCount):
         currentColumn = arr[:, column]
         maxOfColumn = np.max(currentColumn)
         minOfColumn = np.min(currentColumn)
+        limit = (minOfColumn, maxOfColumn)
+        k = get_K_for_normalize(method, limit, standard)
 
-        for row in range(rowCount):
-            if method[column] == 1:
-                arr[row, column] = (arr[row, column] - minOfColumn) / (maxOfColumn - minOfColumn)
-            elif method[column] == 2:
-                arr[row, column] = (maxOfColumn - arr[row, column]) / (maxOfColumn - minOfColumn)
-            elif method[column] == 3 and standard:
-                arr[row, column] = (abs(standard[column] - arr[row, column])) / (minOfColumn - maxOfColumn) + 1
-            elif method[column] == 4 and standard:
-                arr[row, column] = (abs(arr[row, column] - standard[column]) / (maxOfColumn - minOfColumn))
-            elif method[column] == 5:
-                pass
-            else:
-                return "error: wrong normalize method input"
+        if maxOfColumn == minOfColumn:
+            pass
+        elif method == NormalizeType['benefit']:
+            arr[:, column] = (arr[:, column] - minOfColumn) / (maxOfColumn - minOfColumn)
+        elif method == NormalizeType['cost']:
+            arr[:, column] = (maxOfColumn - arr[:, column]) / (maxOfColumn - minOfColumn)
+        elif method == NormalizeType['fixed'] or method == NormalizeType['interval']:
+            for row in range(rowCount):
+                if arr[row, column] <= standard[0]:
+                    arr[row, column] = k * (arr[row, column] - standard[0]) + 1
+                elif arr[row, column] >= standard[-1]:
+                    arr[row, column] = -k * (arr[row, column] - standard[-1]) + 1
+                else:
+                    arr[row, column] = 1.
+
+        elif method == NormalizeType['deviate'] or method == NormalizeType['de-interval']:
+            for row in range(rowCount):
+                if arr[row, column] <= standard[0]:
+                    arr[row, column] = k * (arr[row, column] - standard[0])
+                elif arr[row, column] >= standard[-1]:
+                    arr[row, column] = -k * (arr[row, column] - standard[-1])
+                else:
+                    arr[row, column] = 0.
+        else:
+            return "wrong method were inputted!"
     return arr
+
+
+def get_K_for_normalize(method, limit, standard):
+    k = 0.0
+    if method == NormalizeType['cost'] or method == NormalizeType['benefit']:
+        if limit[-1] - limit[0] == 0:
+            return 1
+        elif method == NormalizeType['cost']:
+            return 1 / (limit[0] - limit[-1])
+        else:
+            return 1 / (limit[-1] - limit[0])
+    k1 = limit[-1] - standard[-1]
+    k3 = limit[0] - standard[0]
+    if limit[0] > standard[-1]:
+        if method == NormalizeType['fixed'] or method == NormalizeType['interval']:
+            k = 1 / k1
+        elif method == NormalizeType['deviate'] or method == NormalizeType['de-interval']:
+            k = 1 / (- k1)
+    elif limit[-1] < standard[0]:
+        if method == NormalizeType['fixed'] or method == NormalizeType['interval']:
+            k = 1 / (- k3)
+        elif method == NormalizeType['deviate'] or method == NormalizeType['de-interval']:
+            k = 1 / k3
+    elif abs(k1) < abs(k3) and standard[0] >= limit[0] and standard[-1] < limit[-1]:
+        if method == NormalizeType['fixed']:
+            k = 1 / (-k3)
+        elif method == NormalizeType['deviate']:
+            k = 1 / k3
+    elif abs(k1) >= abs(k3) and standard[0] >= limit[0] and standard[-1] < limit[-1]:
+        if method == NormalizeType['fixed'] or method == NormalizeType['interval']:
+            k = 1 / k1
+        elif method == NormalizeType['deviate'] or method == NormalizeType['de-interval']:
+            k = 1 / (- k1)
+    else:
+        if standard[0] < limit[0]:
+            if method == NormalizeType['interval']:
+                k = 1 / k1
+            elif method == NormalizeType['de-interval']:
+                k = 1 / (- k1)
+        elif standard[-1] > limit[-1]:
+            if method == NormalizeType['interval']:
+                k = 1 / (-k3)
+            elif method == NormalizeType['de-interval']:
+                k = 1 / k3
+    return k
 
 
 # put datasets which the path ordered together, and ends with '.dataType'
@@ -68,7 +133,7 @@ def get_features_from_datasets(path, dataType):
         featureFormula.append(' = '.join(ft))
     put_data_in_a_table(path, files)
     if len(featureDict) != (existAttr + 1):
-        with open(path + "/attributes.py", "wt", encoding="utf-8-sig") as attr:
+        with open(path + "/attributes.py", "wt", encoding="utf-8-sig", newline="") as attr:
             attr.writelines(sorted(featureFormula))
         put_data_in_a_table(path, files)
     return featureDict
@@ -106,5 +171,3 @@ def put_data_in_a_table(path, files):
     with open(path + '/putTogether.csv', "w", encoding="utf-8-sig") as writeFile:
         writer = csv.writer(writeFile)
         writer.writerows(attributesMatrix)
-
-
