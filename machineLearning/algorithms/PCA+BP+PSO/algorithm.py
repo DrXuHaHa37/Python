@@ -1,10 +1,12 @@
 import numpy as np
 import csv
-# from reductionDim.PCA.algorithm import PCA
+from reductionDim.PCA.algorithm import PCA_V_2
 from algorithms import choose
 from dataPretreatment import normalized
+from algorithms.NN import BP
 
 NormalizeType = {
+    'zs': -1,
     'benefit': 1,
     'cost': 2,
     'fixed': 3,
@@ -12,6 +14,12 @@ NormalizeType = {
     'interval': 5,
     'de-interval': 6,
 }
+
+csvFilePwd = 'D:/Documents/gPaper/drillData.csv'
+accumulateVariance = 0.95
+# 0.90 3
+# 0.95 5
+# 0.98 8
 
 
 class FeatureAndMethod(object):
@@ -30,25 +38,36 @@ class FeatureAndMethod(object):
 
 
 class Algorithm:
-    def __init__(self, pwd):
+    def __init__(self, pwd, accumulateV, generation):
         self.listOfFam = []
-        self.drillVelocity = []
+        self.drillVelocity_T = []
+        self.drillVelocity_E = []
         # T: training, E: test
         self.trainingSet, self.testSet = self.csv_to_array(pwd)
         self.tGroups, self.tFeatures = self.trainingSet.shape
         self.eGroups, self.eFeatures = self.testSet.shape
         self.normalize()
 
+        self.projectionMtx = PCA_V_2(self.trainingSet, accumulateV).projectionMtx
+        self.lowDimT = np.dot(self.trainingSet, self.projectionMtx)
+        self.lowDimE = np.dot(self.testSet, self.projectionMtx)
+        self.pGroups, self.pFeatures = self.lowDimT.shape
+
+        # build BP NN, save the pkl file in 'algorithms/NN/matrixT_training.pkl'
+        self.h1 = self.pFeatures + 1
+        self.h2 = self.h1
+        bp = BP.BP(self.lowDimT, self.drillVelocity_T, generation)
+
+        # test BP accurate
+        bp.test_accuracy(self.lowDimE, self.drillVelocity_E)
+
     def csv_to_array(self, pwd):
+        # pop features' name & method vector
         with open(pwd, encoding="utf-8-sig") as c:
             drillData = list(csv.reader(c))
             featureName = drillData.pop(0)
             methodName = drillData.pop(0)
         trainingSet, testSet = [], []
-
-        # pop ZS from every line
-        for i in drillData:
-            self.drillVelocity.append(i.pop(-1))
 
         # let empty elements' values = (average of effective of that column)
         for j in range(len(drillData[0])):
@@ -63,15 +82,19 @@ class Algorithm:
                     drillData[i][j] = 0.0
             averageOfCol = sum(effectiveCount) / len(effectiveCount)
             method, interval = self.depart_method_string(methodName[j])
-            self.listOfFam.append(
-                FeatureAndMethod.Struct(featureName[j],
-                                        method,
-                                        interval,
-                                        j,
-                                        averageOfCol,)
-            )
             for row in emptyRow:
                 drillData[row][j] = averageOfCol
+            if method != NormalizeType['zs']:
+                self.listOfFam.append(
+                    FeatureAndMethod.Struct(featureName[j],
+                                            method,
+                                            interval,
+                                            j,
+                                            averageOfCol,)
+                )
+            else:
+                for i in range(len(drillData)):
+                    self.drillVelocity_T.append(drillData[i].pop())
 
         # choose n=1/4 datas for test, m=3/4 datas for training
         m, n = choose.random_choice_m_in_n(
@@ -80,7 +103,9 @@ class Algorithm:
         )
 
         while n:
-            testSet.append(drillData.pop(n.pop(-1)))
+            index = n.pop(-1)
+            testSet.append(drillData.pop(index))
+            self.drillVelocity_E.append(self.drillVelocity_T.pop(index))
         trainingSet = drillData
         return np.array(trainingSet), np.array(testSet)
 
@@ -115,7 +140,6 @@ class Algorithm:
             fam.interval[1] -= fam.average
 
 
-algo = Algorithm('D:/Documents/gPaper/drillData.csv')
-print('---')
+algo = Algorithm(csvFilePwd, accumulateVariance, 100)
 
 

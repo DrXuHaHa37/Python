@@ -8,6 +8,15 @@ import csv
 # 3.固定型 越接近某个值越好---->
 # 4.偏离型 约远离某个值越好----->
 # 5.区间型 越靠近某个区间越好--->
+# 6.偏离区间 约远离某个区间好---->
+NormalizeType = {
+    'benefit': 1,
+    'cost': 2,
+    'fixed': 3,
+    'deviate': 4,
+    'interval': 5,
+    'de-interval': 6,
+}
 
 
 # put datasets which the path ordered together, and ends with '.dataType'
@@ -24,18 +33,6 @@ def putDatasTogether(path, dataType):
         for feature in features:
             featureSet.add(feature.split(' ')[0])
     return sorted(featureSet)
-
-
-# 5.区间型 越靠近某个区间越好--->
-# 6.偏离区间 约远离某个区间好---->
-NormalizeType = {
-    'benefit': 1,
-    'cost': 2,
-    'fixed': 3,
-    'deviate': 4,
-    'interval': 5,
-    'de-interval': 6,
-}
 
 
 # 传入numpy.array
