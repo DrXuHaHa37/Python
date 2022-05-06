@@ -1,0 +1,5 @@
+pkl file:
+    1.matrixT_training: 保存每次PCA+BP+PSO的运算结果
+    2.其余pkl: MMDD-No.-LR-累计方差-隐层层数
+
+0429-1:

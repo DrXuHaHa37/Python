@@ -1,5 +1,6 @@
-import numpy as np
-import csv
+import numpy as np  # 1.20.3
+import csv  #
+import matplotlib.pyplot as plt  # 3.4.3
 from reductionDim.PCA.algorithm import PCA_V_2
 from algorithms import choose
 from dataPretreatment import normalized
@@ -15,8 +16,8 @@ NormalizeType = {
     'de-interval': 6,
 }
 
-csvFilePwd = 'D:/Documents/gPaper/drillData.csv'
-accumulateVariance = 0.95
+CsvFilePwd = 'D:/Documents/gPaper/drillData.csv'
+AccumulateVariance = 0.95
 # 0.90 3
 # 0.95 5
 # 0.98 8
@@ -54,9 +55,9 @@ class Algorithm:
         self.pGroups, self.pFeatures = self.lowDimT.shape
 
         # build BP NN, save the pkl file in 'algorithms/NN/matrixT_training.pkl'
-        self.h1 = self.pFeatures + 1
-        self.h2 = self.h1
-        bp = BP.BP(self.lowDimT, self.drillVelocity_T, generation)
+        self.hidden = [self.pFeatures + 2, self.pFeatures + 4]
+        self.learnRate = 0.7
+        bp = BP.BP(self.lowDimT, self.drillVelocity_T, generation, self.learnRate, self.hidden)
 
         # test BP accurate
         bp.test_accuracy(self.lowDimE, self.drillVelocity_E)
@@ -90,7 +91,7 @@ class Algorithm:
                                             method,
                                             interval,
                                             j,
-                                            averageOfCol,)
+                                            averageOfCol, )
                 )
             else:
                 for i in range(len(drillData)):
@@ -123,12 +124,12 @@ class Algorithm:
                 self.trainingSet[:, fam.serial].reshape(self.tGroups, 1),
                 fam.method,
                 fam.interval
-            ).reshape(self.tGroups,)
+            ).reshape(self.tGroups, )
             self.testSet[:, fam.serial] = normalized.normalize(
                 self.testSet[:, fam.serial].reshape(self.eGroups, 1),
                 fam.method,
                 fam.interval
-            ).reshape(self.eGroups,)
+            ).reshape(self.eGroups, )
 
     def decentralization(self, fam):
         self.trainingSet[:, fam.serial] -= fam.average
@@ -140,6 +141,4 @@ class Algorithm:
             fam.interval[1] -= fam.average
 
 
-algo = Algorithm(csvFilePwd, accumulateVariance, 100)
-
-
+algo = Algorithm(CsvFilePwd, AccumulateVariance, 300)
