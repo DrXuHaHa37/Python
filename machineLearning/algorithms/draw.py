@@ -46,6 +46,27 @@ def draw_scatter_plot(matrix, modal, k):
     plt.show()
 
 
+def draw_with_text(x, y, title, additionList):
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.plot(x, y)
+    ax.set_title(title)
+    # 设置x和y轴标签
+    ax.set_xlabel('generations')
+    ax.set_ylabel('loss')
+
+    # 在子图上添加文本
+    ax.text(1, len(additionList), '\n'.join(additionList),
+            bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+
+    # ax.text(3, 8, 'boxed italics text in data coords', style='italic',
+    #         bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+    plt.show()
+
+
+x = np.linspace(1, 10, 100)
+y = x * x
+draw_with_text(x, y, 'this is title', ['111', '222', '333'])
 
 
 

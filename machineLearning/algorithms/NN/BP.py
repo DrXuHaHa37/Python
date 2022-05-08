@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import torch.nn.functional as ftn
+from algorithms import draw
 
 
 class BP:
@@ -12,10 +13,9 @@ class BP:
         self.input_groups, self.input_attrs = self.input.shape
         self.output = torch.tensor(y, dtype=torch.float)
         self.output_groups, self.output_attrs = self.output.shape[0], 1
-        self.hidden_1, self.hidden_2 = hidden
+        self.hidden = hidden
         self.net = Net(self.input_attrs,
-                       self.hidden_1,
-                       self.hidden_2,
+                       self.hidden,
                        self.output_attrs
                        )
         self.lossList = []
@@ -33,13 +33,15 @@ class BP:
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        self.draw()
+        X = range(self.generation)
+        Y = self.lossList
+        draw.draw_with_text(X, Y, str(lr), self.get_remark_list())
 
-    def draw(self):
-        x = range(self.generation)
-        y = self.lossList
-        plt.plot(np.array(x), np.array(y))
-        plt.show()
+    def get_remark_list(self):
+        remarkList = []
+        for i in range(len(self.hidden)):
+            remarkList.append('第{}隐层: {}个神经元'.format(i+1, self.hidden[i]))
+        return remarkList
 
     def test_accuracy(self, x, y):
         inputE = torch.tensor(x, dtype=torch.float)
@@ -50,17 +52,22 @@ class BP:
 
 
 class Net(torch.nn.Module):
-    def __init__(self, n_input, n_hidden_1, n_hidden_2, n_output):
+    def __init__(self, n_input, list_hidden, n_output):
         super(Net, self).__init__()
-        self.input = torch.nn.Linear(n_input, n_hidden_1)
-        self.hidden = torch.nn.Linear(n_hidden_1, n_hidden_2)
-        self.output = torch.nn.Linear(n_hidden_2, n_output)
+        self.hidden = list_hidden
+        if not self.hidden:
+            print('wrong hidden list')
+        self.input = torch.nn.Linear(n_input, self.hidden[0])
+        self.output = torch.nn.Linear(self.hidden[-1], n_output)
+        if len(self.hidden) > 2:
+            for i in range(len(self.hidden) - 2):
 
-    def forward(self, x):
-        x = ftn.relu(self.input(x))
-        x = ftn.relu(self.hidden(x))
-        x = self.output(x)
-        return x
+
+    def forward(self, X):
+        k = ftn.relu(self.input(X))
+        k = ftn.relu(self.hidden(k))
+        k = self.output(k)
+        return k
 
 
 x = np.linspace(-1, 1, 100).reshape(100, 1)
