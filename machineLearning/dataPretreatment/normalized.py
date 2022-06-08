@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import csv
+from algorithms.functions import csv_operate
 
 # 数据归一化方法：
 # 1.效益型 越大越好-----------> 大的大
@@ -186,3 +187,54 @@ def put_data_in_a_table(path, files):
     with open(path + '/putTogether.csv', "w", encoding="utf-8-sig") as writeFile:
         writer = csv.writer(writeFile)
         writer.writerows(attributesMatrix)
+
+
+class HandleUsefulData:
+    # input file pwd and feature name to exchange
+    def __init__(self, pwd1, pwd2, featureString='YXMS'):
+        self.readPwd = pwd1
+        self.writePwd = pwd2
+        self.featureString = featureString
+
+    def v2(self):
+        # pop ahead 2 lines for features name and normalize method
+        csvObj = csv_operate()
+        drillData = csvObj.readByPwd(self.readPwd)
+
+        # get YXMS's serial from features
+        theFeatureSerial = drillData[0].index(self.featureString)
+        tfDict = dict()
+        tfNo = 0
+
+        # handle yx features (add a new column)
+        for record in range(2, len(drillData)):
+            cStatus = True  # complete status -> True: complete
+
+            # check out tuple is completed or not
+            for f in drillData[record]:
+                if not f:
+                    # not complete
+                    cStatus = False
+                    break
+
+            # tuple data is completed
+            if cStatus:
+                # fen sha -> sha
+                fsLocation = drillData[record][theFeatureSerial].find('粉砂')
+                if fsLocation != -1:
+                    yxSerial = list(drillData[record][theFeatureSerial])
+                    yxSerial.pop(fsLocation)
+                    drillData[record][theFeatureSerial] = ''.join(yxSerial)
+
+                # yx into the dictonary
+                try:
+                    print(tfDict[drillData[record][theFeatureSerial]])
+                except:
+                    tfNo += 1
+                    tfDict[drillData[record][theFeatureSerial]] = tfNo
+                finally:
+                    drillData[record].append(tfDict[drillData[record][theFeatureSerial]])
+
+        csvObj.saveByPwd(self.writePwd, drillData)
+
+

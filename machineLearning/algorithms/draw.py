@@ -3,7 +3,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-from functions import UNIMODAL, MULTIMODAL
+from algorithms.functions import UNIMODAL, MULTIMODAL
 
 
 def draw_convergence(npArr):
@@ -54,19 +54,12 @@ def draw_with_text(x, y, title, additionList):
     # 设置x和y轴标签
     ax.set_xlabel('generations')
     ax.set_ylabel('loss')
+    # plt.ylim(0, int(2000))
 
     # 在子图上添加文本
     ax.text(1, len(additionList), '\n'.join(additionList),
-            bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
-
-    # ax.text(3, 8, 'boxed italics text in data coords', style='italic',
-    #         bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+            bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 2})
     plt.show()
-
-
-x = np.linspace(1, 10, 100)
-y = x * x
-draw_with_text(x, y, 'this is title', ['111', '222', '333'])
 
 
 

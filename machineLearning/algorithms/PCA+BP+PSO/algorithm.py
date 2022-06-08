@@ -48,15 +48,18 @@ class Algorithm:
         self.tGroups, self.tFeatures = self.trainingSet.shape
         self.eGroups, self.eFeatures = self.testSet.shape
         self.normalize()
-
-        self.projectionMtx = PCA_V_2(self.trainingSet, accumulateV).projectionMtx
-        self.lowDimT = np.dot(self.trainingSet, self.projectionMtx)
-        self.lowDimE = np.dot(self.testSet, self.projectionMtx)
+        if self.eFeatures > 5:
+            self.projectionMtx = PCA_V_2(self.trainingSet, accumulateV).projectionMtx
+            self.lowDimT = np.dot(self.trainingSet, self.projectionMtx)
+            self.lowDimE = np.dot(self.testSet, self.projectionMtx)
+        else:
+            self.lowDimT = self.trainingSet
+            self.lowDimE = self.testSet
         self.pGroups, self.pFeatures = self.lowDimT.shape
 
         # build BP NN, save the pkl file in 'algorithms/NN/matrixT_training.pkl'
-        self.hidden = [self.pFeatures + 2, self.pFeatures + 4]
-        self.learnRate = 0.7
+        self.hidden = [self.pFeatures + 10, self.pFeatures + 10, self.pFeatures + 10, self.pFeatures + 10]
+        self.learnRate = 0.0001
         bp = BP.BP(self.lowDimT, self.drillVelocity_T, generation, self.learnRate, self.hidden)
 
         # test BP accurate
@@ -98,6 +101,7 @@ class Algorithm:
                     self.drillVelocity_T.append(drillData[i].pop())
 
         # choose n=1/4 datas for test, m=3/4 datas for training
+        # exchange m & n
         m, n = choose.random_choice_m_in_n(
             3 * int(len(drillData) / 4),
             len(drillData)
@@ -141,4 +145,4 @@ class Algorithm:
             fam.interval[1] -= fam.average
 
 
-algo = Algorithm(CsvFilePwd, AccumulateVariance, 300)
+algo = Algorithm(CsvFilePwd, AccumulateVariance, 5000)

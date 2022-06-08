@@ -1,4 +1,5 @@
 import numpy as np
+import csv
 from matplotlib import pyplot as plt
 
 MATH_PI = np.pi
@@ -132,6 +133,19 @@ class MULTIMODAL:
         return u
 
 
+class csv_operate:
+    def __init__(self, encoding='gbk'):
+        self.encode = encoding
 
+    # return list
+    def readByPwd(self, pwd):
+        with open(pwd, encoding=self.encode) as f:
+            csvFile = list(csv.reader(f))
+        return csvFile
+
+    def saveByPwd(self, pwd, csvList):
+        with open(pwd, "wt", encoding=self.encode, newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(csvList)
 
 
