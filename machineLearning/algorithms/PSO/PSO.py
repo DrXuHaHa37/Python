@@ -1,9 +1,10 @@
+from algorithms.draw import draw_convergence
+from algorithms import format
+from algorithms.functions import UNIMODAL
 import numpy as np
 import sys
 sys.path.append("../")
-from draw import draw_convergence
-import format
-from functions import UNIMODAL
+
 import choose
 
 pLimit = [(-2, 2), (-2, 2)]
@@ -29,7 +30,7 @@ def func(arr):
 
 
 class PSO:
-    def __init__(self, ITER, GROUP, LIMIT_P, LIMIT_V, MODAL, MODAL_K, W, C):
+    def __init__(self, ITER: int, GROUP: int, LIMIT_P: list, LIMIT_V: list, MODAL, MODAL_K, W: int, C: tuple):
         self.iter = ITER
         self.group = GROUP
         self.limit_P = LIMIT_P

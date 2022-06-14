@@ -46,7 +46,7 @@ def draw_scatter_plot(matrix, modal, k):
     plt.show()
 
 
-def draw_with_text(x, y, title, additionList):
+def draw_with_text(x, y, title, additionList=[]):
     fig = plt.figure()
     ax = fig.add_subplot()
     ax.plot(x, y)

@@ -16,7 +16,9 @@ def roulette(dic):
             return list(enumerate(dic))[i][1]
 
 
-def random_choice_m_in_n(m, n):
+def random_choice_m_in_n(n):
+    # 总共n个 抽取m个
+    m = 3 * n / 4
     nSequence = [x for x in range(n)]
     random.shuffle(nSequence)
     mSequence = []
@@ -26,4 +28,5 @@ def random_choice_m_in_n(m, n):
         run += 1
     nSequence.sort()
     mSequence.sort()
+    # m 是多的 n是少的
     return mSequence, nSequence

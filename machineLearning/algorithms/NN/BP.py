@@ -6,7 +6,7 @@ from algorithms import draw
 
 
 class BP:
-    def __init__(self, x: np.array, y: np.array, generation, learnRate, hidden):
+    def __init__(self, x: np.array, y: np.array, generation, learnRate, hidden, xE, yE):
 
         self.generation = generation
         self.input = torch.tensor(x, dtype=torch.float)
@@ -21,6 +21,8 @@ class BP:
         print(self.net)
         self.lossList = []
         self.algorithm(self.generation, learnRate)
+        self.test_accuracy(xE, yE)
+        self.save()
         torch.save(self.net, 'matrixT_training.pkl')
 
     def algorithm(self, generations, lr):
@@ -50,6 +52,9 @@ class BP:
         predict = self.net(inputE)
         predict, outputE = predict.data.numpy(), outputE.data.numpy()
         print('------------')
+
+    def save(self):
+
 
 
 class Net1(torch.nn.Module):

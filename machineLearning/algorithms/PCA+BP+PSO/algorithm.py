@@ -16,7 +16,7 @@ NormalizeType = {
     'de-interval': 6,
 }
 
-CsvFilePwd = 'D:/Documents/gPaper/drillData.csv'
+CsvFilePwd = 'D:/Documents/Programing/Github/Python/machineLearning/dataSet/drillData_v3.csv'
 AccumulateVariance = 0.95
 # 0.90 3
 # 0.95 5
@@ -47,8 +47,8 @@ class Algorithm:
         self.trainingSet, self.testSet = self.csv_to_array(pwd)
         self.tGroups, self.tFeatures = self.trainingSet.shape
         self.eGroups, self.eFeatures = self.testSet.shape
-        self.normalize()
-        if self.eFeatures > 5:
+        # self.normalize()
+        if self.eFeatures > 10:
             self.projectionMtx = PCA_V_2(self.trainingSet, accumulateV).projectionMtx
             self.lowDimT = np.dot(self.trainingSet, self.projectionMtx)
             self.lowDimE = np.dot(self.testSet, self.projectionMtx)
@@ -59,8 +59,12 @@ class Algorithm:
 
         # build BP NN, save the pkl file in 'algorithms/NN/matrixT_training.pkl'
         self.hidden = [self.pFeatures + 10, self.pFeatures + 10, self.pFeatures + 10, self.pFeatures + 10]
-        self.learnRate = 0.0001
-        bp = BP.BP(self.lowDimT, self.drillVelocity_T, generation, self.learnRate, self.hidden)
+        self.learnRate = 0.75
+        bp = BP.BP(
+                    self.lowDimT, self.drillVelocity_T,
+                    generation, self.learnRate, self.hidden,
+                    self.lowDimE, self.drillVelocity_E,
+                   )
 
         # test BP accurate
         bp.test_accuracy(self.lowDimE, self.drillVelocity_E)
@@ -145,4 +149,4 @@ class Algorithm:
             fam.interval[1] -= fam.average
 
 
-algo = Algorithm(CsvFilePwd, AccumulateVariance, 5000)
+algo = Algorithm(CsvFilePwd, AccumulateVariance, 100)

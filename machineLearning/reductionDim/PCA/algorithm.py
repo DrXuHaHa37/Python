@@ -67,3 +67,6 @@ class PCA_V_2:
         return featureVector[:, :columnNo + 1]
 
 
+a = [[2, -2, 0], [-2, 1, -2], [0, -2, 0]]
+
+pca = PCA_V_2(np.array(a), 0.9)
