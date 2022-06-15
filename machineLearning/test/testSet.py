@@ -1,18 +1,22 @@
-class a:
-    def __init__(self, x):
-        self.x = self.b(x).cal()
-        print(self.x)
-
-    class b:
-        def __init__(self, i):
-            self.input = i
-
-        def cal(self):
-            self.cla2()
-            return self.input + 2
-
-        def cla2(self):
-            return self.input + 3
+class Algo:
+    def __init__(self, iters, groups):
+        self.iter = iters
+        self.group = groups
 
 
-a(3)
+class PSO(Algo):
+    def __init__(self, w, c, algo: Algo):
+        self.iter = algo.iter
+        self.group = algo.group
+        self.w = w
+        self.c = c
+
+    def algorithm(self):
+        pass
+
+
+a = Algo(3, 8)
+
+pso = PSO(1, 2, a)
+
+print('---')
