@@ -6,6 +6,7 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from algorithms.functions import UNIMODAL, MULTIMODAL
 from matplotlib.pyplot import plot, savefig
 import datetime
+import imageio
 
 
 def draw_convergence(npArr):
@@ -82,6 +83,13 @@ def draw_multi_lines(method, title):
     savefig("D:/Documents/gPaper/predict/" + timeString)
     # plt.show()
     plt.clf()
+
+    def get_gif_by_png():
+        img_path = []
+        for i in range(1, 51):
+            pic_name = 'genetic_pics\\'+str(4*i)+'.jpg'
+            img_path.append(imageio.imread(pic_name))
+        imageio.mimsave('genetic.gif', img_path, fps = 150)
 
 
 # x = np.linspace(-1, 1, 10)
