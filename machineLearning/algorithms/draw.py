@@ -4,6 +4,8 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from algorithms.functions import UNIMODAL, MULTIMODAL
+from matplotlib.pyplot import plot, savefig
+import datetime
 
 
 def draw_convergence(npArr):
@@ -46,7 +48,7 @@ def draw_scatter_plot(matrix, modal, k):
     plt.show()
 
 
-def draw_with_text(x, y, title, additionList=[]):
+def draw_with_text(x, y, title= '111', additionList=[]):
     fig = plt.figure()
     ax = fig.add_subplot()
     ax.plot(x, y)
@@ -60,6 +62,38 @@ def draw_with_text(x, y, title, additionList=[]):
     ax.text(1, len(additionList), '\n'.join(additionList),
             bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 2})
     plt.show()
+
+
+# {method1:[x1, y1], method2:[x2,y2]}
+def draw_multi_lines(method, title):
+    fig, ax = plt.subplots()
+    for i in method:
+        ax.plot(method[i][0], method[i][1], label=i)
+
+    ax.set_xlabel('sample')
+    ax.set_ylabel('vpc')
+    ax.set_title(title)
+
+    ax.legend()
+    t = datetime.datetime.now()
+    timeString = str(t).split('.')[0].split(' ')
+    timeString[1] = ''.join(timeString[1].split(':'))
+    timeString = '_'.join(timeString) + '.jpg'
+    savefig("D:/Documents/gPaper/predict/" + timeString)
+    # plt.show()
+    plt.clf()
+
+
+# x = np.linspace(-1, 1, 10)
+# y1 = x
+# y2 = x ** 2
+#
+# d = dict()
+#
+# d['line'] = [x, y1]
+# d['pow'] = [x, y2]
+#
+# draw_multi_lines(d)
 
 
 

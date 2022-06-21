@@ -1,5 +1,6 @@
 import numpy as np
 from algorithms.NN import NN
+from algorithms import draw
 
 
 AlgoDict = {
@@ -12,7 +13,10 @@ INF = np.inf
 
 
 def fitness(real, predict):
-    return np.sum(np.abs(real - predict))
+    lgh = len(predict)
+    pred = np.array(predict)
+    loss = np.sum((real - pred) ** 2) / lgh
+    return loss
 
 
 # 算法输入: 最大代数, 种群数, 输入, 真实值
@@ -21,28 +25,32 @@ class ALGO:
     def __init__(self, iters, groups):
         self.iter = iters
         self.group = groups
-        self.hiddenLayer = [3, 3, 1]
+        self.hiddenLayer = [7, 7, 1]
 
 
 class PSO(ALGO):
-    def __init__(self, algo: ALGO, w: int = 0.8, c: tuple = (0.49, 1.49)):
+    def __init__(self, algo: ALGO, w: int = 0.25, c: tuple = (2, 2)):
         super().__init__(algo.iter, algo.group)
+        self.algoBase = algo
         self.w = w
         self.c = c
         self.serial = AlgoDict['PSO']
+
+    def __str__(self):
+        return 'PSO'
 
     def algorithm(self, x: np.array, yReal: list):
         # 初始化神经网络结构, 输入层-隐层-输出层 层数&神经元个数
         rows, dim = x.shape
         yReal = np.array(yReal)
-        nn = NN.NN(dim, self.hiddenLayer)
+        nn = NN.NN(dim, self.algoBase.hiddenLayer)
 
         # 粒子群算法初始化
         # 计算WB向量维度
-        bStandard = sum(self.hiddenLayer)
-        wStandard = dim * self.hiddenLayer[0]
-        for i in range(len(self.hiddenLayer) - 1):
-            wStandard += self.hiddenLayer[i] * self.hiddenLayer[i + 1]
+        bStandard = sum(self.algoBase.hiddenLayer)
+        wStandard = dim * self.algoBase.hiddenLayer[0]
+        for i in range(len(self.algoBase.hiddenLayer) - 1):
+            wStandard += self.algoBase.hiddenLayer[i] * self.algoBase.hiddenLayer[i + 1]
         wbLength = wStandard + bStandard
 
         # 初始化 并判断是否合法
@@ -85,29 +93,39 @@ class PSO(ALGO):
             for identity in range(self.group):
                 v[identity] = \
                     self.w * v[identity] + \
-                    self.c[0] * np.random.random() * (pBest[identity] - groups[identity]) + \
-                    self.c[1] * np.random.random() * (gBest[-1] - groups[identity])
+                    self.c[0] * np.random.rand() * (pBestP[identity] - groups[identity]) + \
+                    self.c[1] * np.random.rand() * (gBestP[-1] - groups[identity])
                 groups[identity] = groups[identity] + v[identity]
+        # draw.draw_with_text(np.linspace(1, self.iter + 1, self.iter + 1), np.array(gBest))
 
         return gBestP
 
 
-class ACO:
-    def __init__(self, algo: ALGO):
-        super().__init__()
-        self.iter = algo.iter
-        self.groups = algo.group
-        self.serial = AlgoDict['ACO']
-
-    def algorithm(self, w, c):
-        pass
-
-
 class GA:
     def __init__(self, algo: ALGO):
-        super().__init__()
-        self.iter = algo.iter
-        self.groups = algo.group
+        super().__init__(algo.iter, algo.group)
+        self.algoBase = algo
         self.serial = AlgoDict['GA']
+
+    def __str__(self):
+        return 'GA'
+
+    def algorithm(self, x: np.array, yReal: list):
+        # 初始化神经网络结构, 输入层-隐层-输出层 层数&神经元个数
+        rows, dim = x.shape
+        yReal = np.array(yReal)
+        nn = NN.NN(dim, self.algoBase.hiddenLayer)
+
+    # 选择
+    def choose(self):
+        pass
+
+    # 交叉
+    def exchange(self):
+        pass
+
+    # 变异
+    def mutate(self):
+        pass
 
 

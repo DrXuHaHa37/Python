@@ -5,7 +5,7 @@ import torch.nn.functional as ftn
 from algorithms import draw
 
 
-class BP:
+class BP1:
     def __init__(self, x: np.array, y: np.array, generation, learnRate, hidden, xE, yE):
 
         self.generation = generation
@@ -123,7 +123,7 @@ class Net4(torch.nn.Module):
         return k
 
 
-# x_data = np.linspace(-1, 1, 100).reshape(100, 1)
-# y_data = x_data * x_data * x_data + 0.01 * np.random.randn(100, 1)
-#
-# bp = BP(x_data, y_data, 100, 0.1, [3, 3])
+# class BP:
+#     def __init__(self, hiddenLayer):
+
+

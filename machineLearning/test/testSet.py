@@ -1,3 +1,5 @@
+import numpy as np
+
 class Algo:
     def __init__(self, iters, groups):
         self.iter = iters
@@ -15,8 +17,13 @@ class PSO(Algo):
         pass
 
 
-a = Algo(3, 8)
+def normalized(arr: np.array):
+    for j in range(arr.shape[1]):
+        theMin = np.min(arr[:, j])
+        arr[:, j] = (arr[:, j] - theMin) / (np.max(arr[:, j]) - theMin)
+    return arr
 
-pso = PSO(1, 2, a)
 
-print('---')
+a = np.array([[1, 7], [9, 4]])
+print(normalized(a))
+

@@ -18,7 +18,7 @@ def roulette(dic):
 
 def random_choice_m_in_n(n):
     # 总共n个 抽取m个
-    m = 3 * n / 4
+    m = int(3 * n / 4)
     nSequence = [x for x in range(n)]
     random.shuffle(nSequence)
     mSequence = []

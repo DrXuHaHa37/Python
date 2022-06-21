@@ -57,6 +57,7 @@ class NN:
             hiddenKeys[0].append(currentValue)
 
         for layer in range(1, self.hiddenLayer):
+            # 计算layer层 每个神经元的值
             for i in range(self.hidden[layer]):
                 currentValue = ActivateFunction(
                     np.sum(hiddenKeys[layer - 1] * self.W[layer][i]) + self.B[layer][i]
