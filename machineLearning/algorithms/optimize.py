@@ -19,6 +19,14 @@ def fitness(real, predict):
     return loss
 
 
+def nnFit(wbVector, nn, x):
+    rows = x.shape[0]
+    loopFit = np.array([])
+    if nn.check_WB_hidden_number(wbVector):
+        for i in range(rows):
+            loopFit = np.append(loopFit, nn.calculate(x[i]))
+    return loopFit
+
 # 算法输入: 最大代数, 种群数, 输入, 真实值
 # 返回神经网络参数向量 np.array
 class ALGO:
@@ -101,11 +109,15 @@ class PSO(ALGO):
         return gBestP
 
 
-class GA:
-    def __init__(self, algo: ALGO):
+class GA(ALGO):
+    # 目标函数 交叉率 变异率 代数 准确度
+    def __init__(self, algo: ALGO, cross_rate, mutate_rate):
         super().__init__(algo.iter, algo.group)
         self.algoBase = algo
         self.serial = AlgoDict['GA']
+
+        self.cross_rate = cross_rate
+        self.mutate_rate = mutate_rate
 
     def __str__(self):
         return 'GA'
@@ -116,16 +128,72 @@ class GA:
         yReal = np.array(yReal)
         nn = NN.NN(dim, self.algoBase.hiddenLayer)
 
+        # 粒子群算法初始化
+        # 计算WB向量维度
+        bStandard = sum(self.algoBase.hiddenLayer)
+        wStandard = dim * self.algoBase.hiddenLayer[0]
+        for i in range(len(self.algoBase.hiddenLayer) - 1):
+            wStandard += self.algoBase.hiddenLayer[i] * self.algoBase.hiddenLayer[i + 1]
+        wbLength = wStandard + bStandard
+
+        # 初始化 并判断是否合法
+        groups = np.random.randn(self.group, wbLength)
+
+        # 保存训练历史中最好的适应度值
+        gBestP = np.zeros(self.group)
+        gBest = [float('inf')]
+
+        for _ in range(self.iter):
+            # 保存本轮循环每个个体适应度
+            fit = np.array([])
+            for identity in range(self.group):
+                # 每一行数据求出nn输出 向量
+                currentLoopFit = nnFit(list(groups[identity]), nn, x)
+                # 预测值向量和真实值向量做适应度求解
+                currentFitness = fitness(yReal, currentLoopFit)
+
+                # 本轮循环每个个体的适应度更新
+                fit = np.append(fit, currentFitness)
+                # 如果本次循环 个体适应度比历史个体适应度好
+
+            if np.min(fit) < gBest[-1]:
+                gBestP = groups[np.argmin(fit)]
+                gBest.append(np.min(fit))
+            else:
+                gBest.append(gBest[-1])
+
+            # 遗传算法训练
+            groups = self.choose(fit, groups)
+            groupCopy = groups.copy()
+            for parent in range(groups.shape[0]):
+                child = self.cross(groups[parent], groupCopy)
+                child = self.mutate(child)
+                groups[parent] = child
+
+        return gBestP
+
+
+
     # 选择
-    def choose(self):
-        pass
+    def choose(self, fit, groups):
+        index = np.random.choice(np.arange(self.group), size=self.group, p=fit / fit.sum())
+        return groups[index]
 
     # 交叉
-    def exchange(self):
-        pass
+    def cross(self, parent, group):
+        if np.random.rand() < self.cross_rate:
+            # 选择一个个体序号
+            idx = np.random.randint(0, self.group, size=1)
+            # 将父代和该序号进行交叉
+            beta = np.random.randn()
+            parent = beta * parent + (1 - beta) * group[idx]
+        return parent
 
     # 变异
-    def mutate(self):
-        pass
+    def mutate(self, child):
+        for i in range(len(child)):
+            if np.random.rand() < self.mutate_rate:
+                child[i] += np.random.randn()
+        return child
 
 

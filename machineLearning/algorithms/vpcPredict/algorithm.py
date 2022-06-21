@@ -182,8 +182,7 @@ class Algorithm:
         algoBase.hiddenLayer = hD
         optim_algorithms_list = [
             opt.PSO(algoBase),
-            # opt.ACO,
-            # opt.GA,
+            opt.GA(algoBase, 0.8, 0.01),
         ]
         # 当数据集不同维度时
         for subDataSet in self.T:
